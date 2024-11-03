@@ -1,26 +1,18 @@
-from openpyxl import Workbook
-from tinydb import TinyDB
+from sqlalchemy import create_engine
+import pandas as pd
 
+# Step 1: Connect to the SQL Database
+# Replace 'sqlite:///your_database.db' with your database URL
+# For example, for MySQL: 'mysql+pymysql://user:password@host/dbname'
+engine = create_engine('sqlite:///fishing_reports.db')  # Example for SQLite
 
+# Step 2: Query the Database
+# Replace 'your_table' with your actual table name
+query = "SELECT * FROM fishing_reports"  # Adjust the SQL query as needed
+data = pd.read_sql(query, engine)
 
-db = TinyDB('fishing_reports.json')
-all_data = db.all()
+# Step 3: Generate the Excel File
+output_file = "fishing_reports.xlsx"
+data.to_excel(output_file, index=False)
 
-headers = [key for key in all_data[0].keys()]
-
-# Create a new Excel workbook and select the active worksheet
-wb = Workbook()
-ws = wb.active
-
-# Write the headers to the first row
-ws.append(headers)
-
-# Write data rows
-for entry in all_data:
-    # Convert each entry to a list of values, handling None values
-    row = [entry.get(header) for header in headers]
-    ws.append(row)
-
-# Save the workbook to a file
-wb.save("fishing_reports.xlsx")
-print("Excel file created successfully: fishing_reports.xlsx")
+print(f"Excel file created successfully: {output_file}")
